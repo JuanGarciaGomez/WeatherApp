@@ -7,6 +7,8 @@ plugins {
     id("kotlin-parcelize")
 }
 
+val apiKey: String = project.findProperty("api_key") as String? ?: "de5553176da64306b86153651221606"
+
 android {
     namespace = "com.juanfe.project.weatherapp"
     compileSdk = 34
@@ -17,8 +19,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -37,6 +39,12 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
+
 }
 
 dependencies {
