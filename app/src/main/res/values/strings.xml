@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">WeatherApp</string>
+
+    <!-- Search Screen -->
+
+    <string name="search_location">Buscar ubicación</string>
+
+
+    <!-- Error Service -->
+    <string name="unknown_error">Error Inesperado</string>
+    <string name="client_error">Error del cliente</string>
+    <string name="server_error">Error del servidor</string>
+    <string name="internet_error">No hay conexión de internet</string>
+    <string name="no_weather_location">No hay Lugar para esta busqueda</string>
 </resources>
