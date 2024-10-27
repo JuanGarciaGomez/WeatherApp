@@ -76,19 +76,22 @@ dependencies {
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+
 
     //Gson
     implementation(libs.gson)
 
     // Glide
+    implementation(libs.glide.transformations)
     implementation(libs.glide)
     ksp(libs.compiler)
 
     //DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    implementation(libs.logging.interceptor)
-    implementation(libs.glide.transformations)
+    //chart
+    implementation(libs.mpandroidchart)
 
     //Test
     testImplementation(libs.junit)
