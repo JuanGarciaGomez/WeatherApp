@@ -1,5 +1,6 @@
 package com.juanfe.project.weatherapp.ui.search.adapter.search
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -10,7 +11,7 @@ import com.juanfe.project.weatherapp.domain.SearchModel
 
 class SearchHistoryAdapter(
     private var list: List<SearchModel>,
-    private val onItemSelected: (SearchModel, Boolean) -> Unit
+    private val onItemSelected: (String, Boolean) -> Unit
 ) : RecyclerView.Adapter<SearchHistoryAdapter.MyViewHolder>() {
 
     fun updateList(newList: List<SearchModel>) {
@@ -46,22 +47,24 @@ class SearchHistoryAdapter(
 
     class MyViewHolder(private val binding: ItemLocationBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: SearchModel, onItemSelected: (SearchModel, Boolean) -> Unit) {
+        fun bind(item: SearchModel, onItemSelected: (String, Boolean) -> Unit) {
             binding.apply {
+
+                Log.e("ENTRO","Search")
 
                 val location = "${item.name}, ${item.region}, ${item.country}"
                 historyLocation.text = location
 
                 historyArrow.setOnClickListener {
-                    onItemSelected.invoke(item, false)
+                    onItemSelected.invoke(item.name, false)
                 }
 
                 historySchedule.setOnClickListener {
-                    onItemSelected.invoke(item, true)
+                    onItemSelected.invoke(item.name, true)
                 }
 
                 historyLocation.setOnClickListener {
-                    onItemSelected.invoke(item, true)
+                    onItemSelected.invoke(item.name, true)
                 }
 
             }

@@ -5,7 +5,10 @@
 
     <color name="primary">#F5F4F9</color>
     <color name="onPrimary">#DDDDDD</color>
-    <color name="secondary">#419198</color>
-    <color name="gray">#C8C8C9</color>
+    <color name="secondary_dark">#4D6F82</color>
+    <color name="secondary_light">#37A2A5</color>
+    <color name="secondary_light_background">#CBF6F6</color>
+    <color name="secondary_middle">#438993</color>
+    <color name="gray">#D3D3D5</color>
 
 </resources>
