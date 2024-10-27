@@ -54,9 +54,9 @@ data class CurrentResponse(
     @SerializedName("pressure_in")
     val pressureIn: Double,
     @SerializedName("precip_mm")
-    val precipMm: Long,
+    val precipMm: Double,
     @SerializedName("precip_in")
-    val precipIn: Long,
+    val precipIn: Double,
     val humidity: Long,
     val cloud: Long,
     @SerializedName("feelslike_c")
@@ -79,7 +79,7 @@ data class CurrentResponse(
     val visKm: Long,
     @SerializedName("vis_miles")
     val visMiles: Long,
-    val uv: Long,
+    val uv: Double,
     @SerializedName("gust_mph")
     val gustMph: Double,
     @SerializedName("gust_kph")
@@ -143,7 +143,7 @@ data class DayResponse(
     @SerializedName("daily_chance_of_snow")
     val dailyChanceOfSnow: Long,
     val condition: Condition2Response,
-    val uv: Long,
+    val uv: Double,
 )
 
 data class Condition2Response(
@@ -231,7 +231,7 @@ data class HourResponse(
     val gustMph: Double,
     @SerializedName("gust_kph")
     val gustKph: Double,
-    val uv: Long,
+    val uv: Double,
 )
 
 data class Condition3Response(
