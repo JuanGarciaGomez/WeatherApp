@@ -39,8 +39,8 @@ data class CurrentModel(
     val windDir: String,
     val pressureMb: Long,
     val pressureIn: Double,
-    val precipMm: Long,
-    val precipIn: Long,
+    val precipMm: Double,
+    val precipIn: Double,
     val humidity: Long,
     val cloud: Long,
     val feelsLikeC: Double,
@@ -53,7 +53,7 @@ data class CurrentModel(
     val dewPointF: Double,
     val visKm: Long,
     val visMiles: Long,
-    val uv: Long,
+    val uv: Double,
     val gustMph: Double,
     val gustKph: Double,
 )
@@ -96,7 +96,7 @@ data class DayModel(
     val dailyWillItSnow: Long,
     val dailyChanceOfSnow: Long,
     val condition: Condition2Model,
-    val uv: Long,
+    val uv: Double,
 )
 
 data class Condition2Model(
@@ -150,7 +150,7 @@ data class HourModel(
     val visMiles: Long,
     val gustMph: Double,
     val gustKph: Double,
-    val uv: Long,
+    val uv: Double,
 )
 
 data class Condition3Model(
@@ -158,3 +158,19 @@ data class Condition3Model(
     val icon: String,
     val code: Long,
 )
+
+data class WeatherDetailModel(
+    val title: String,
+    val description: String,
+    val typeIcon: TypeDetail
+)
+
+
+enum class TypeDetail{
+    PRESSURE,
+    HUMIDITY,
+    WIND,
+    VIS,
+    DEWPOINT,
+    UV
+}
