@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondary_light_background"
+    android:background="@color/background"
     tools:context=".ui.search.SearchFragment">
 
     <TextView
@@ -16,6 +16,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="1"
+        android:textColor="@color/primary"
         android:textSize="12sp" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -44,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                app:cardElevation="20dp"
+                app:cardElevation="2dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -53,7 +54,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/gradient_background">
+                    android:background="@color/secondary">
 
                     <TextView
                         android:id="@+id/name_city"
@@ -137,7 +138,7 @@
                 android:layout_height="100dp"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                app:cardElevation="20dp"
+                app:cardElevation="2dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/forecast_days_rv"
@@ -146,7 +147,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/gradient_background">
+                    android:background="@color/secondary">
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/line_chart"
@@ -168,6 +169,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
+                android:paddingBottom="8dp"
                 android:clipToPadding="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -184,21 +186,15 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/secondary_light_background">
+        android:backgroundTint="@color/background">
 
-        <FrameLayout
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/gradient_background">
-
-            <com.google.android.material.search.SearchBar
-                android:id="@+id/search_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/primary"
-                android:hint="@string/search_location" />
-
-        </FrameLayout>
+            android:backgroundTint="@color/secondary"
+            android:hint="@string/search_location"
+            app:navigationIconTint="@color/primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

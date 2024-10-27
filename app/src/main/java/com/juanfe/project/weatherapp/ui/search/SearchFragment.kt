@@ -83,6 +83,9 @@ class SearchFragment : Fragment() {
     private fun initListeners() {
         binding.apply {
 
+            searchBar.textView.setTextColor(ContextCompat.getColor(requireContext(),R.color.primary))
+            searchBar.textView.setHintTextColor(ContextCompat.getColor(requireContext(),R.color.primary))
+
             searchView.addTransitionListener { _, transitionState, _ ->
                 if (transitionState == SearchView.TransitionState.SHOWING) {
                     searchViewOpen = true

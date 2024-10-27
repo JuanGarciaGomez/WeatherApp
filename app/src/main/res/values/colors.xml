@@ -10,5 +10,7 @@
     <color name="secondary_light_background">#CBF6F6</color>
     <color name="secondary_middle">#438993</color>
     <color name="gray">#D3D3D5</color>
+    <color name="background">#68A2DA</color>
+    <color name="secondary">#5794D3</color>
 
 </resources>
