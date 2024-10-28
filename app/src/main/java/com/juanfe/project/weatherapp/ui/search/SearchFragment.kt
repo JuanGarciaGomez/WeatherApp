@@ -2,12 +2,9 @@ package com.juanfe.project.weatherapp.ui.search
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Geocoder
-import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +25,6 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.search.SearchView
 import com.juanfe.project.weatherapp.R
 import com.juanfe.project.weatherapp.databinding.FragmentSearchBinding
@@ -44,7 +39,6 @@ import com.juanfe.project.weatherapp.ui.search.adapter.forecast.ForecastDayAdapt
 import com.juanfe.project.weatherapp.ui.search.adapter.search.SearchHistoryAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -66,7 +60,7 @@ class SearchFragment : Fragment() {
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-                getDeviceLocation()
+                searchViewModel.handleIntent(UserIntent.InitialLocation)
             } else {
                 //Pueden ser un componente de material 3
                 Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
@@ -117,10 +111,10 @@ class SearchFragment : Fragment() {
             searchView.addTransitionListener { _, transitionState, _ ->
                 if (transitionState == SearchView.TransitionState.SHOWING) {
                     searchViewOpen = true
-                    searchViewModel.handleIntent(UserIntent.TapSearch)
                 }
                 if (transitionState == SearchView.TransitionState.HIDING) {
                     searchHistoryAdapter.updateList(listOf())
+                    binding.progress.visibility = View.GONE
                 }
             }
 
@@ -176,47 +170,7 @@ class SearchFragment : Fragment() {
                 )
             )
         } else {
-            getDeviceLocation()
-        }
-    }
-
-    //Can move for viewModel
-    private fun getDeviceLocation() {
-        val fusedLocationClient: FusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(requireContext())
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            // get location only if the app have permission
-            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                location?.let {
-                    Log.e("Location", "lat: ${it.latitude} && lon: ${it.longitude}")
-                    cityName = getCityNameFromLocation(it.latitude, it.longitude) ?: "Bogota"
-                    searchViewModel.handleIntent(UserIntent.GetForecast(cityName))
-                } ?: run {
-                    Toast.makeText(context, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } else {
-            Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    //Can move for viewModel
-    private fun getCityNameFromLocation(latitude: Double, longitude: Double): String? {
-        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        return try {
-            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-            addresses?.firstOrNull()?.locality
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            searchViewModel.handleIntent(UserIntent.InitialLocation)
         }
     }
 
@@ -314,6 +268,7 @@ class SearchFragment : Fragment() {
         if (searchLocation.isNotEmpty()) {
             searchHistoryAdapter.updateList(searchLocation)
         }
+        binding.weatherInfo.visibility = View.VISIBLE
     }
 
     private fun showForecastSuccess(rootForecast: RootForecastModel) {

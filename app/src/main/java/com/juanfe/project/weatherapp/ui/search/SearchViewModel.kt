@@ -3,9 +3,9 @@ package com.juanfe.project.weatherapp.ui.search
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,7 +40,7 @@ class SearchViewModel @Inject constructor(
     fun handleIntent(intent: UserIntent) {
         when (intent) {
             is UserIntent.SearchLocation -> search(intent.query)
-            UserIntent.TapSearch -> {}
+            UserIntent.InitialLocation -> getDeviceLocation()
             is UserIntent.GetForecast -> getForeCast(intent.query)
         }
     }
@@ -90,6 +91,44 @@ class SearchViewModel @Inject constructor(
                 _viewState.value =
                     SearchViewState.Error(context.getString(R.string.no_weather_location))
             }
+        }
+    }
+
+    private fun getDeviceLocation() {
+        val fusedLocationClient: FusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(context)
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // get location only if the app have permission
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    Log.i("LocationJF", "lat: ${it.latitude} && lon: ${it.longitude}")
+                    val cityName = getCityNameFromLocation(it.latitude, it.longitude) ?: "Bogota"
+                    getForeCast(cityName)
+                } ?: run {
+                    _viewState.value = SearchViewState.Error("No se pudo obtener la ubicación")
+                }
+            }
+        } else {
+            _viewState.value = SearchViewState.Error("Permiso de ubicación denegado")
+        }
+    }
+
+    private fun getCityNameFromLocation(latitude: Double, longitude: Double): String? {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        return try {
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            addresses?.firstOrNull()?.locality
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
