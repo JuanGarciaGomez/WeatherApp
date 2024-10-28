@@ -1,14 +1,21 @@
 package com.juanfe.project.weatherapp.ui.search
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,12 +28,15 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.search.SearchView
 import com.juanfe.project.weatherapp.R
 import com.juanfe.project.weatherapp.databinding.FragmentSearchBinding
 import com.juanfe.project.weatherapp.domain.CurrentModel
 import com.juanfe.project.weatherapp.domain.ForecastDayModel
 import com.juanfe.project.weatherapp.domain.RootForecastModel
+import com.juanfe.project.weatherapp.domain.SearchModel
 import com.juanfe.project.weatherapp.domain.TypeDetail
 import com.juanfe.project.weatherapp.domain.WeatherDetailModel
 import com.juanfe.project.weatherapp.ui.search.adapter.detail.WeatherDetailAdapter
@@ -34,6 +44,7 @@ import com.juanfe.project.weatherapp.ui.search.adapter.forecast.ForecastDayAdapt
 import com.juanfe.project.weatherapp.ui.search.adapter.search.SearchHistoryAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -45,9 +56,22 @@ class SearchFragment : Fragment() {
     private lateinit var forecastDayAdapter: ForecastDayAdapter
     private lateinit var weatherDetailAdapter: WeatherDetailAdapter
 
+    private lateinit var cityName: String
+
     private val searchViewModel: SearchViewModel by viewModels()
     private var searchViewOpen = false
 
+
+    // Launcher para solicitud de permisos de ubicación
+    private val locationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+                getDeviceLocation()
+            } else {
+                //Pueden ser un componente de material 3
+                Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,6 +87,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun initUi() {
+        requestLocationPermissions()
         initObservers()
         initListeners()
         setUpRecyclerView()
@@ -83,8 +108,11 @@ class SearchFragment : Fragment() {
     private fun initListeners() {
         binding.apply {
 
-            searchBar.textView.setTextColor(ContextCompat.getColor(requireContext(),R.color.primary))
-            searchBar.textView.setHintTextColor(ContextCompat.getColor(requireContext(),R.color.primary))
+            searchBar.textView.setTextColor(ContextCompat.getColor(requireContext(),R.color.white))
+            searchBar.textView.setHintTextColor(ContextCompat.getColor(requireContext(),R.color.white))
+
+            /*searchView.editText.setTextColor(ContextCompat.getColor(requireContext(),R.color.white))
+            searchView.editText.setHintTextColor(ContextCompat.getColor(requireContext(),R.color.white))*/
 
             searchView.addTransitionListener { _, transitionState, _ ->
                 if (transitionState == SearchView.TransitionState.SHOWING) {
@@ -107,7 +135,7 @@ class SearchFragment : Fragment() {
                 }
 
                 override fun afterTextChanged(query: Editable?) {
-                    if (!query.isNullOrEmpty()) {
+                    if (!query.isNullOrEmpty() && query.length >= 3) {
                         searchViewModel.handleIntent(UserIntent.SearchLocation(query.toString()))
                     }
                 }
@@ -117,12 +145,80 @@ class SearchFragment : Fragment() {
                 val text = query?.text.toString()
                 searchBar.setText(text)
                 searchView.hide()
-                if (text.isNotEmpty()) searchViewModel.handleIntent(UserIntent.SearchLocation(text))
+                if (text.isNotEmpty() && text.length >= 3) searchViewModel.handleIntent(UserIntent.GetForecast(text))
                 true
             }
         }
     }
 
+/*    private fun setThemeBasedOnPreference(isLightTheme: Boolean) {
+        if (isLightTheme) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+    }*/
+
+    private fun requestLocationPermissions() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        } else {
+            getDeviceLocation()
+        }
+    }
+
+    //Can move for viewModel
+    private fun getDeviceLocation() {
+        val fusedLocationClient: FusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // get location only if the app have permission
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    Log.e("Location", "lat: ${it.latitude} && lon: ${it.longitude}")
+                    cityName = getCityNameFromLocation(it.latitude, it.longitude) ?: "Bogota"
+                    searchViewModel.handleIntent(UserIntent.GetForecast(cityName))
+                } ?: run {
+                    Toast.makeText(context, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    //Can move for viewModel
+    private fun getCityNameFromLocation(latitude: Double, longitude: Double): String? {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        return try {
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            addresses?.firstOrNull()?.locality
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     private fun setUpRecyclerView() {
         searchRV()
@@ -172,8 +268,10 @@ class SearchFragment : Fragment() {
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (searchViewOpen) {
+                        binding.progress.visibility = View.GONE
                         binding.searchView.hide()
                         searchViewOpen = false
+
                     } else {
                         isEnabled = false
                         requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -184,49 +282,52 @@ class SearchFragment : Fragment() {
 
     private fun updateUi(viewState: SearchViewState) {
         when (viewState) {
-            is SearchViewState.Error -> {
-                searchHistoryAdapter.updateList(listOf())
-                forecastDayAdapter.updateList(listOf())
-                binding.msgInformation.visibility = View.VISIBLE
-                binding.msgInformation.text = viewState.errorMsg
-                hideLoading(visibleRv = false)
-            }
-
-            is SearchViewState.Loading -> {
-                if (viewState.firstOpen) {
-                    binding.weatherInfo.visibility = View.GONE
-                    binding.progress.visibility = View.GONE
-                    binding.msgInformation.text =
-                        requireContext().getString(R.string.search_something)
-                } else {
-                    searchHistoryAdapter.updateList(listOf())
-                    forecastDayAdapter.updateList(listOf())
-                    binding.msgInformation.visibility = View.GONE
-                    binding.progress.visibility = View.VISIBLE
-                }
-
-            }
-
-            is SearchViewState.SearchLocationSuccess -> {
-                val searchLocation = viewState.searchLocationModel
-                if (searchLocation.isNotEmpty()) {
-                    searchHistoryAdapter.updateList(searchLocation)
-                }
-                binding.weatherInfo.visibility = View.VISIBLE
-                hideLoading(visibleRv = true)
-            }
-
-            is SearchViewState.ForecastSuccess -> {
-                val rootForecast = viewState.getForecast
-                binding.weatherInfo.visibility = View.VISIBLE
-                drawForecast(viewState.getForecast)
-                forecastDayAdapter.updateList(rootForecast.forecast.forecastDay)
-                hideLoading(visibleRv = true)
-                drawChar(rootForecast.forecast.forecastDay)
-                drawCardInfo(rootForecast.current)
-            }
+            is SearchViewState.Error -> showErrorState(viewState.errorMsg)
+            is SearchViewState.Loading -> showLoadingState()
+            is SearchViewState.SearchLocationSuccess -> showSearchLocationSuccess(viewState.searchLocationModel)
+            is SearchViewState.ForecastSuccess -> showForecastSuccess(viewState.getForecast)
         }
+    }
 
+    private fun showErrorState(errorMsg: String) {
+        clearAdapters()
+        binding.apply {
+            msgInformation.apply {
+                text = errorMsg
+                visibility = View.VISIBLE
+            }
+            progress.visibility = View.GONE
+            weatherInfo.visibility = View.GONE
+        }
+    }
+
+    private fun showLoadingState() {
+        clearAdapters()
+        binding.apply {
+            progress.visibility = View.VISIBLE
+            weatherInfo.visibility = View.GONE
+            msgInformation.visibility = View.GONE
+        }
+    }
+
+    private fun showSearchLocationSuccess(searchLocation: List<SearchModel>) {
+        if (searchLocation.isNotEmpty()) {
+            searchHistoryAdapter.updateList(searchLocation)
+        }
+    }
+
+    private fun showForecastSuccess(rootForecast: RootForecastModel) {
+        binding.weatherInfo.visibility = View.VISIBLE
+        drawForecast(rootForecast)
+        forecastDayAdapter.updateList(rootForecast.forecast.forecastDay)
+        drawChar(rootForecast.forecast.forecastDay)
+        drawCardInfo(rootForecast.current)
+        binding.progress.visibility = View.GONE
+    }
+
+    private fun clearAdapters() {
+        searchHistoryAdapter.updateList(emptyList())
+        forecastDayAdapter.updateList(emptyList())
     }
 
     private fun drawCardInfo(current: CurrentModel) {
@@ -269,10 +370,10 @@ class SearchFragment : Fragment() {
 
         // Create the DataSet and configure its properties
         val dataSet = LineDataSet(entries, "").apply {
-            color = ContextCompat.getColor(requireContext(), R.color.primary) // Line color
-            valueTextColor = ContextCompat.getColor(requireContext(), R.color.primary) // Value text color
+            color = ContextCompat.getColor(requireContext(), R.color.white) // Line color
+            valueTextColor = ContextCompat.getColor(requireContext(), R.color.white) // Value text color
             valueTextSize = 10f
-            setCircleColor(ContextCompat.getColor(requireContext(), R.color.primary)) // Circle color
+            setCircleColor(ContextCompat.getColor(requireContext(), R.color.white)) // Circle color
             setDrawCircles(true)
             setDrawCircleHole(true)
             lineWidth = 1f
@@ -311,12 +412,6 @@ class SearchFragment : Fragment() {
             isDoubleTapToZoomEnabled = false // Disable double tap to zoom
             animateY(1000)
         }
-    }
-
-    private fun hideLoading(visibleRv: Boolean, visibleProgress: Boolean = false) {
-        binding.searchResultsRv.isVisible = visibleRv
-        binding.forecastDaysRv.isVisible = visibleRv
-        binding.progress.isVisible = visibleProgress
     }
 
     private fun drawForecast(forecast: RootForecastModel) {

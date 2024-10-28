@@ -1,8 +1,16 @@
 package com.juanfe.project.weatherapp.ui.search
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.util.Log
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.juanfe.project.weatherapp.R
 import com.juanfe.project.weatherapp.domain.ExceptionService
 import com.juanfe.project.weatherapp.domain.GetForecastUseCase

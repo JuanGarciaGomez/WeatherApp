@@ -16,7 +16,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="1"
-        android:textColor="@color/primary"
+        android:textColor="@color/white"
         android:textSize="12sp" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -25,7 +25,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:indeterminate="true"
-        app:indicatorColor="@color/secondary_light" />
+        app:indicatorColor="@color/white" />
 
     <!-- NestedScrollingChild goes here (NestedScrollView, RecyclerView, etc.). -->
     <androidx.core.widget.NestedScrollView
@@ -33,7 +33,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -169,8 +171,8 @@
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:paddingBottom="8dp"
                 android:clipToPadding="false"
+                android:paddingBottom="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/container_chart"
@@ -194,16 +196,17 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/secondary"
             android:hint="@string/search_location"
-            app:navigationIconTint="@color/primary" />
+            app:navigationIconTint="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!--for implement change of colors i need background in color/background-->
     <com.google.android.material.search.SearchView
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:hint="@string/search_location"
-        app:backgroundTint="@color/primary"
+        app:backgroundTint="@color/white"
         app:layout_anchor="@id/search_bar">
 
         <androidx.recyclerview.widget.RecyclerView
