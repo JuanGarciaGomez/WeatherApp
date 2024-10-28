@@ -66,12 +66,12 @@ class WeatherDetailAdapter(
 
         private fun getScaleUv(description: String): String {
             return when (description.toDouble().toInt()) {
-                in 1..2 -> "Low"
+                in 0..2 -> "Low"
                 in 3..5 -> "Moderate"
                 in 6..7 -> "High"
                 in 8..10 -> "Very high"
                 in 11..Int.MAX_VALUE -> "Very high"
-                else -> "unKnown"
+                else -> "unknown"
             }
         }
 
