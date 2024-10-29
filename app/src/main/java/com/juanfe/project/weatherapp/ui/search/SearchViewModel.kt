@@ -122,7 +122,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun getCityNameFromLocation(latitude: Double, longitude: Double): String? {
-        val geocoder = Geocoder(context, Locale.getDefault())
+        val geocoder = Geocoder(context, Locale.US)
         return try {
             val addresses = geocoder.getFromLocation(latitude, longitude, 1)
             addresses?.firstOrNull()?.locality
