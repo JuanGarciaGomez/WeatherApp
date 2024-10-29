@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -26,6 +25,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.search.SearchView
+import com.google.android.material.snackbar.Snackbar
 import com.juanfe.project.weatherapp.R
 import com.juanfe.project.weatherapp.databinding.FragmentSearchBinding
 import com.juanfe.project.weatherapp.domain.AstroModel
@@ -51,20 +51,19 @@ class SearchFragment : Fragment() {
     private lateinit var forecastDayAdapter: ForecastDayAdapter
     private lateinit var weatherDetailAdapter: WeatherDetailAdapter
 
-    private lateinit var cityName: String
-
     private val searchViewModel: SearchViewModel by viewModels()
     private var searchViewOpen = false
 
 
-    // Launcher para solicitud de permisos de ubicación
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
                 searchViewModel.handleIntent(UserIntent.InitialLocation)
             } else {
-                //Pueden ser un componente de material 3
-                Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, getString(R.string.location_access), Snackbar.LENGTH_SHORT).show()
+                binding.progress.visibility = View.GONE
+                binding.msgInformation.visibility = View.VISIBLE
+                binding.msgInformation.text = getString(R.string.search_location)
             }
         }
 
@@ -146,13 +145,13 @@ class SearchFragment : Fragment() {
         }
     }
 
-/*    private fun setThemeBasedOnPreference(isLightTheme: Boolean) {
-        if (isLightTheme) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        }
-    }*/
+    /*    private fun setThemeBasedOnPreference(isLightTheme: Boolean) {
+            if (isLightTheme) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+        }*/
 
     private fun requestLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(
@@ -201,7 +200,6 @@ class SearchFragment : Fragment() {
     private fun searchRV() {
         binding.searchResultsRv.layoutManager = LinearLayoutManager(requireContext())
 
-        //listOf podria ser la ubicacion actual
         searchHistoryAdapter = SearchHistoryAdapter(listOf()) { query, search ->
             if (search) {
                 searchViewModel.handleIntent(UserIntent.GetForecast(query))

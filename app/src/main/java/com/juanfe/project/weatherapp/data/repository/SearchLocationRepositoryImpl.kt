@@ -20,7 +20,7 @@ class SearchLocationRepositoryImpl @Inject constructor(
 
     private val error = context.getString(R.string.unknown_error)
 
-    override suspend fun searchProduct(query: String): Result<List<SearchModel>> {
+    override suspend fun searchLocation(query: String): Result<List<SearchModel>> {
         val response = runCatching {
             weatherService.searchLocation(query)
         }
