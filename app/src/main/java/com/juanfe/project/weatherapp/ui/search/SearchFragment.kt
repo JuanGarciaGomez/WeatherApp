@@ -28,6 +28,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.search.SearchView
 import com.juanfe.project.weatherapp.R
 import com.juanfe.project.weatherapp.databinding.FragmentSearchBinding
+import com.juanfe.project.weatherapp.domain.AstroModel
 import com.juanfe.project.weatherapp.domain.CurrentModel
 import com.juanfe.project.weatherapp.domain.ForecastDayModel
 import com.juanfe.project.weatherapp.domain.RootForecastModel
@@ -274,10 +275,22 @@ class SearchFragment : Fragment() {
     private fun showForecastSuccess(rootForecast: RootForecastModel) {
         binding.weatherInfo.visibility = View.VISIBLE
         drawForecast(rootForecast)
+        drawAstro(rootForecast.forecast.forecastDay.first().astro)
         forecastDayAdapter.updateList(rootForecast.forecast.forecastDay)
         drawChar(rootForecast.forecast.forecastDay)
         drawCardInfo(rootForecast.current)
         binding.progress.visibility = View.GONE
+    }
+
+    private fun drawAstro(astro: AstroModel) {
+        binding.apply {
+            //moon
+            moonRiseHour.text = astro.moonrise
+            moonSetHour.text = astro.moonSet
+            //sun
+            sunRiseHour.text = astro.sunrise
+            sunSetHour.text = astro.sunset
+        }
     }
 
     private fun clearAdapters() {
