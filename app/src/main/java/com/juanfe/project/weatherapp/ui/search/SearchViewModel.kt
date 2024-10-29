@@ -34,7 +34,7 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _viewState =
-        MutableStateFlow<SearchViewState>(SearchViewState.Loading(firstOpen = true))
+        MutableStateFlow<SearchViewState>(SearchViewState.Loading)
     val viewState: StateFlow<SearchViewState> = _viewState
 
     fun handleIntent(intent: UserIntent) {
@@ -47,7 +47,7 @@ class SearchViewModel @Inject constructor(
 
     private fun getForeCast(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _viewState.value = SearchViewState.Loading()
+            _viewState.value = SearchViewState.Loading
             val result = getForecastUseCase.invoke(query)
             result.fold(onSuccess = { forecast ->
                 handleSuccess(searchProduct = null, forecast = forecast)
@@ -59,7 +59,7 @@ class SearchViewModel @Inject constructor(
 
     private fun search(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _viewState.value = SearchViewState.Loading()
+            _viewState.value = SearchViewState.Loading
             val result = searchLocationUseCase.invoke(query)
             result.fold(onSuccess = { searchProduct ->
                 handleSuccess(searchProduct = searchProduct, forecast = null)
@@ -109,15 +109,15 @@ class SearchViewModel @Inject constructor(
             // get location only if the app have permission
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                 location?.let {
-                    Log.i("LocationJF", "lat: ${it.latitude} && lon: ${it.longitude}")
+                    Log.i("Location", "lat: ${it.latitude} && lon: ${it.longitude}")
                     val cityName = getCityNameFromLocation(it.latitude, it.longitude) ?: "Bogota"
                     getForeCast(cityName)
                 } ?: run {
-                    _viewState.value = SearchViewState.Error("No se pudo obtener la ubicación")
+                    _viewState.value = SearchViewState.Error(context.getString(R.string.location_failed))
                 }
             }
         } else {
-            _viewState.value = SearchViewState.Error("Permiso de ubicación denegado")
+            _viewState.value = SearchViewState.Error(context.getString(R.string.location_deniged))
         }
     }
 
