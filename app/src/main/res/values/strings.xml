@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">WeatherApp</string>
+
+    <!-- Search Screen -->
+    <string name="search_location">Buscar ubicación</string>
+    <string name="search_something">Buscar ubicación</string>
+
+
+
+    <!-- Error Service -->
+    <string name="unknown_error">Error inesperado</string>
+    <string name="client_error">Ups intenta de nuevo</string>
+    <string name="server_error">Error del servidor</string>
+    <string name="internet_error">No hay conexión de internet</string>
+    <string name="no_weather_location">No hay Lugar para esta busqueda</string>
+    <string name="image">image</string>
+    <string name="pressure">Presión</string>
+    <string name="humidity">Humedad</string>
+    <string name="wind_kph">Viento</string>
+    <string name="vis_km">Visibilidad</string>
+    <string name="dew_point_c">Punto de rocío</string>
+    <string name="uv">Índice UV</string>
+    <string name="location_access">Permiso de ubicación denegado</string>
+    <string name="location_deniged">Permiso de ubicación denegado</string>
+    <string name="location_failed">No se pudo obtener la ubicación</string>
 </resources>
