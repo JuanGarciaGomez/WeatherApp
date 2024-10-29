@@ -285,11 +285,11 @@ class SearchFragment : Fragment() {
     private fun drawAstro(astro: AstroModel) {
         binding.apply {
             //moon
-            moonRiseHour.text = astro.moonrise
-            moonSetHour.text = astro.moonSet
+            starts.moonRiseHour.text = astro.moonrise
+            starts.moonSetHour.text = astro.moonSet
             //sun
-            sunRiseHour.text = astro.sunrise
-            sunSetHour.text = astro.sunset
+            starts.sunRiseHour.text = astro.sunrise
+            starts.sunSetHour.text = astro.sunset
         }
     }
 
